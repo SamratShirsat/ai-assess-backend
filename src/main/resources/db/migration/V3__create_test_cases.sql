@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS test_cases (
+    id BIGSERIAL PRIMARY KEY,
+    problem_id BIGINT NOT NULL REFERENCES problems(id) ON DELETE CASCADE,
+    input TEXT NOT NULL,
+    expected_output TEXT NOT NULL,
+    hidden BOOLEAN NOT NULL DEFAULT true,
+    sample BOOLEAN NOT NULL DEFAULT false,
+    points INT NOT NULL DEFAULT 10,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_test_cases_problem_id ON test_cases(problem_id);

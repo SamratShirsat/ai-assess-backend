@@ -1,0 +1,62 @@
+-- V18__create_assessment_session_tables.sql
+CREATE TABLE assessments (
+    id BIGSERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    assessment_type VARCHAR(50) NOT NULL,
+    duration_minutes INT NOT NULL CHECK (duration_minutes > 0),
+    total_points INT NOT NULL DEFAULT 0,
+    passing_score INT NOT NULL DEFAULT 0 CHECK (passing_score >= 0 AND passing_score <= 100),
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE assessment_problems (
+    id BIGSERIAL PRIMARY KEY,
+    assessment_id BIGINT NOT NULL REFERENCES assessments(id) ON DELETE CASCADE,
+    problem_id BIGINT NOT NULL, -- References existing problems table
+    display_order INT NOT NULL CHECK (display_order > 0),
+    points INT NOT NULL CHECK (points >= 0),
+    required BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (assessment_id, problem_id),
+    UNIQUE (assessment_id, display_order)
+);
+
+CREATE TABLE assessment_sessions (
+    id BIGSERIAL PRIMARY KEY,
+    assessment_id BIGINT NOT NULL REFERENCES assessments(id),
+    user_id BIGINT NOT NULL, -- References existing users table
+    status VARCHAR(50) NOT NULL,
+    started_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    submitted_at TIMESTAMP WITH TIME ZONE,
+    last_activity_at TIMESTAMP WITH TIME ZONE,
+    total_score INT DEFAULT 0,
+    percentage INT DEFAULT 0,
+    passed BOOLEAN,
+    current_problem_id BIGINT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE assessment_session_problems (
+    id BIGSERIAL PRIMARY KEY,
+    session_id BIGINT NOT NULL REFERENCES assessment_sessions(id) ON DELETE CASCADE,
+    assessment_problem_id BIGINT NOT NULL REFERENCES assessment_problems(id),
+    status VARCHAR(50) NOT NULL,
+    started_at TIMESTAMP WITH TIME ZONE,
+    completed_at TIMESTAMP WITH TIME ZONE,
+    best_submission_id BIGINT, -- References existing submissions table
+    score INT DEFAULT 0,
+    attempt_count INT DEFAULT 0,
+    last_saved_code TEXT,
+    last_saved_language VARCHAR(50),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (session_id, assessment_problem_id)
+);
+
+CREATE INDEX idx_assess_sessions_user ON assessment_sessions(user_id);
+CREATE INDEX idx_assess_sessions_status ON assessment_sessions(status);
+CREATE INDEX idx_assess_sessions_expires ON assessment_sessions(expires_at);

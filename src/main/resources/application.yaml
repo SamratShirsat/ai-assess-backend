@@ -1,0 +1,60 @@
+spring:
+  application:
+    name: ai.developer.assi
+  server:
+    port=8081:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/samratshirsat}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    baseline-version: "0" # Treats existing tables as version 0
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+jwt:
+  secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+  expiration: 3600000
+
+code:
+  execution:
+    enabled: true
+    timeout-ms: 5000
+    memory-limit: 256m
+    cpu-limit: 1.0
+    max-output-bytes: 1048576
+    max-source-code-bytes: 102400
+    max-processes: 32
+    max-executions-per-minute: 10
+
+adaptive:
+  success-threshold: 0.80
+  maintain-threshold: 0.60
+  recovery-threshold: 0.40
+  min-attempts-for-promotion: 3
+  recent-attempt-window: 10
+  diagnostic-question-count: 6
+  exploitation-ratio: 0.70
+  exploration-ratio: 0.30
+  min-problem-repeat-days: 30
+ai:
+  enabled: ${AI_ENABLED:true}
+  provider: ${AI_PROVIDER:openai}
+  api-key: ${AI_API_KEY:}
+  model: ${AI_MODEL:gpt-4o-mini}
+  base-url: ${AI_BASE_URL:[https://api.openai.com/v1](https://api.openai.com/v1)}
+  timeout-seconds: ${AI_TIMEOUT_SECONDS:30}
+  max-input-chars: ${AI_MAX_INPUT_CHARS:30000}
+  max-output-tokens: ${AI_MAX_OUTPUT_TOKENS:2000}
+  review-rate-limit: ${AI_REVIEW_RATE_LIMIT:5}
+  hint-rate-limit: ${AI_HINT_RATE_LIMIT:10}
+  rate-limit-window-minutes: 60
